@@ -44,10 +44,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public Auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Public Movies & Genres endpoints
+                        // Public Movies & Genres endpoints (read-only)
                         .requestMatchers(HttpMethod.GET, "/api/movies/**", "/api/genres/**").permitAll()
-                        // Public Cinemas & Showtimes (read-only)
-                        .requestMatchers(HttpMethod.GET, "/api/cinemas/**", "/api/showtimes/**").permitAll()
+                        // Public Cinemas, Rooms & Showtimes (read-only)
+                        .requestMatchers(HttpMethod.GET, "/api/cinemas/**", "/api/rooms/**", "/api/showtimes/**").permitAll()
                         // Swagger & OpenAPI
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         // All other endpoints require authentication

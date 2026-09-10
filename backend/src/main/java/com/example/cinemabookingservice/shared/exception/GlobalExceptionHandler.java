@@ -1,5 +1,8 @@
 package com.example.cinemabookingservice.shared.exception;
 
+import com.example.cinemabookingservice.cinema.domain.exception.CinemaNotFoundException;
+import com.example.cinemabookingservice.cinema.domain.exception.RoomNotFoundException;
+import com.example.cinemabookingservice.cinema.domain.exception.SeatNotFoundException;
 import com.example.cinemabookingservice.movie.domain.exception.GenreNotFoundException;
 import com.example.cinemabookingservice.movie.domain.exception.MovieNotFoundException;
 import com.example.cinemabookingservice.user.domain.exception.TokenRevokedException;
@@ -21,7 +24,14 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({MovieNotFoundException.class, GenreNotFoundException.class, UserNotFoundException.class})
+    @ExceptionHandler({
+            MovieNotFoundException.class,
+            GenreNotFoundException.class,
+            UserNotFoundException.class,
+            CinemaNotFoundException.class,
+            RoomNotFoundException.class,
+            SeatNotFoundException.class
+    })
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException exception,
             HttpServletRequest request
