@@ -5,6 +5,8 @@ import com.example.cinemabookingservice.cinema.domain.exception.RoomNotFoundExce
 import com.example.cinemabookingservice.cinema.domain.exception.SeatNotFoundException;
 import com.example.cinemabookingservice.movie.domain.exception.GenreNotFoundException;
 import com.example.cinemabookingservice.movie.domain.exception.MovieNotFoundException;
+import com.example.cinemabookingservice.showtime.domain.exception.ShowtimeNotFoundException;
+import com.example.cinemabookingservice.showtime.domain.exception.ShowtimeOverlapException;
 import com.example.cinemabookingservice.user.domain.exception.TokenRevokedException;
 import com.example.cinemabookingservice.user.domain.exception.UserAlreadyExistsException;
 import com.example.cinemabookingservice.user.domain.exception.UserNotFoundException;
@@ -30,7 +32,8 @@ public class GlobalExceptionHandler {
             UserNotFoundException.class,
             CinemaNotFoundException.class,
             RoomNotFoundException.class,
-            SeatNotFoundException.class
+            SeatNotFoundException.class,
+            ShowtimeNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException exception,
@@ -46,9 +49,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ExceptionHandler({UserAlreadyExistsException.class, ShowtimeOverlapException.class})
     public ResponseEntity<ErrorResponse> handleConflict(
-            UserAlreadyExistsException exception,
+            RuntimeException exception,
             HttpServletRequest request
     ) {
         ErrorResponse response = new ErrorResponse(
