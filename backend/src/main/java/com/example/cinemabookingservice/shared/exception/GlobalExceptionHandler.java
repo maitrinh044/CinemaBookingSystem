@@ -5,6 +5,9 @@ import com.example.cinemabookingservice.booking.domain.exception.BookingNotFound
 import com.example.cinemabookingservice.booking.domain.exception.SeatAlreadyBookedException;
 import com.example.cinemabookingservice.booking.domain.exception.TicketAlreadyUsedException;
 import com.example.cinemabookingservice.booking.domain.exception.TicketNotFoundException;
+import com.example.cinemabookingservice.notification.domain.exception.NotificationNotFoundException;
+import com.example.cinemabookingservice.payment.domain.exception.PaymentAlreadyCompletedException;
+import com.example.cinemabookingservice.payment.domain.exception.PaymentNotFoundException;
 import com.example.cinemabookingservice.cinema.domain.exception.CinemaNotFoundException;
 import com.example.cinemabookingservice.cinema.domain.exception.RoomNotFoundException;
 import com.example.cinemabookingservice.cinema.domain.exception.SeatNotFoundException;
@@ -40,7 +43,9 @@ public class GlobalExceptionHandler {
             SeatNotFoundException.class,
             ShowtimeNotFoundException.class,
             BookingNotFoundException.class,
-            TicketNotFoundException.class
+            TicketNotFoundException.class,
+            NotificationNotFoundException.class,
+            PaymentNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException exception,
@@ -78,6 +83,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             BookingExpiredException.class,
             TicketAlreadyUsedException.class,
+            PaymentAlreadyCompletedException.class,
             IllegalArgumentException.class,
             IllegalStateException.class
     })
@@ -118,7 +124,7 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 HttpStatus.FORBIDDEN.getReasonPhrase(),
-                "Bạn không có quyền thực hiện thao tác này",
+                "Báº¡n khÃ´ng cÃ³ quyá»n thá»±c hiá»‡n thao tÃ¡c nÃ y",
                 request.getRequestURI(),
                 LocalDateTime.now()
         );
@@ -145,7 +151,7 @@ public class GlobalExceptionHandler {
                 new ValidationErrorResponse(
                         HttpStatus.BAD_REQUEST.value(),
                         HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                        "Dữ liệu gửi lên không hợp lệ",
+                        "Dá»¯ liá»‡u gá»­i lÃªn khÃ´ng há»£p lá»‡",
                         request.getRequestURI(),
                         errors,
                         LocalDateTime.now()
@@ -162,7 +168,7 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                exception.getMessage() != null ? exception.getMessage() : "Đã xảy ra lỗi máy chủ không mong muốn",
+                exception.getMessage() != null ? exception.getMessage() : "ÄÃ£ xáº£y ra lá»—i mÃ¡y chá»§ khÃ´ng mong muá»‘n",
                 request.getRequestURI(),
                 LocalDateTime.now()
         );

@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/movies/**", "/api/genres/**").permitAll()
                         // Public Cinemas, Rooms & Showtimes (read-only)
                         .requestMatchers(HttpMethod.GET, "/api/cinemas/**", "/api/rooms/**", "/api/showtimes/**").permitAll()
+                        // Payment callbacks & simulation
+                        .requestMatchers("/api/payments/vnpay-callback", "/api/payments/simulate-success/**").permitAll()
                         // Swagger & OpenAPI
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         // All other endpoints require authentication
