@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="vi" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#101113" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="CineGlow" />
+
+    <!-- SEO Meta Tags -->
+    <title>CineGlow - Rạp Chiếu Phim & Đặt Vé Trực Tuyến Hàng Đầu</title>
+    <meta name="description" content="CineGlow Cinema - Hệ thống đặt vé xem phim trực tuyến hiện đại chuẩn rạp cao cấp. Xem lịch chiếu, chọn ghế thời gian thực phòng chiếu IMAX, 2D, Dolby Atmos, combo bắp nước và nhận vé điện tử tức thì." />
+    <meta name="keywords" content="đặt vé xem phim, rạp chiếu phim, lịch chiếu phim, vé xem phim giá rẻ, cineglow, phim đang chiếu, rạp imax, bắp nước rạp phim" />
+    <meta name="author" content="CineGlow Entertainment Vietnam" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://cineglow.vn/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://cineglow.vn/" />
+    <meta property="og:title" content="CineGlow - Rạp Chiếu Phim & Đặt Vé Trực Tuyến Hàng Đầu" />
+    <meta property="og:description" content="Khám phá các bom tấn điện ảnh mới nhất, chọn ghế VIP phòng chiếu IMAX Laser và thanh toán vé điện tử trong 2 phút." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&auto=format&fit=crop&q=80" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="CineGlow Cinema" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CineGlow - Rạp Chiếu Phim & Đặt Vé Trực Tuyến" />
+    <meta name="twitter:description" content="Đặt vé xem phim online nhanh chóng, bản đồ ghế thời gian thực và thanh toán bảo mật đa kênh." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&auto=format&fit=crop&q=80" />
+
+    <!-- Structured Data (JSON-LD) for Search Engines -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://cineglow.vn/#website",
+          "url": "https://cineglow.vn/",
+          "name": "CineGlow Cinema",
+          "description": "Rạp Chiếu Phim & Đặt Vé Trực Tuyến Hàng Đầu Việt Nam",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://cineglow.vn/movies?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "MovieTheater",
+          "@id": "https://cineglow.vn/#theater",
+          "name": "CineGlow Cinemas Vietnam",
+          "image": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200",
+          "url": "https://cineglow.vn",
+          "telephone": "1900 6868",
+          "priceRange": "45.000đ - 220.000đ",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Tầng B1, TTTM Vincom Landmark 81, 720A Điện Biên Phủ",
+            "addressLocality": "Bình Thạnh",
+            "addressRegion": "Hồ Chí Minh",
+            "addressCountry": "VN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 10.7951,
+            "longitude": 106.7218
+          },
+          "openingHoursSpecification": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "opens": "08:30",
+            "closes": "23:59"
+          }
+        }
+      ]
+    }
+    </script>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Anti-FOUC Script for Dark / Light Theme -->
+    <script>
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('cinema_theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (savedTheme === 'dark' || (!savedTheme && prefersDark) || savedTheme === 'system' && prefersDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          } else if (savedTheme === 'light' || (savedTheme === 'system' && !prefersDark)) {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          } else {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-background text-foreground antialiased transition-colors duration-300">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Register Service Worker for PWA -->
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => {
+              console.log('[PWA] Service Worker registered successfully:', reg.scope);
+            })
+            .catch((err) => {
+              console.warn('[PWA] Service Worker registration failed:', err);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>

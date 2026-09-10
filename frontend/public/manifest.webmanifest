@@ -1,0 +1,59 @@
+{
+  "name": "CineGlow - Rạp Chiếu Phim & Đặt Vé Trực Tuyến",
+  "short_name": "CineGlow",
+  "description": "Hệ thống đặt vé xem phim trực tuyến hiện đại chuẩn rạp cao cấp. Lịch chiếu, chọn ghế realtime IMAX/2D, combo bắp nước và tích điểm VIP.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#101113",
+  "theme_color": "#D92D20",
+  "lang": "vi",
+  "categories": ["entertainment", "movies", "shopping"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Lịch Chiếu Hôm Nay",
+      "short_name": "Lịch Chiếu",
+      "description": "Xem lịch chiếu phim tại tất cả các cụm rạp",
+      "url": "/showtimes",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Phim Đang Chiếu",
+      "short_name": "Phim Hot",
+      "description": "Danh sách các bộ phim bom tấn đang chiếu rạp",
+      "url": "/movies",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Ưu Đãi & Khuyến Mãi",
+      "short_name": "Ưu Đãi",
+      "description": "Các chương trình khuyến mãi vé xem phim hấp dẫn",
+      "url": "/promotions",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Vé Của Tôi",
+      "short_name": "Vé Của Tôi",
+      "description": "Tra cứu và xuất trình mã QR vé đã đặt",
+      "url": "/profile",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --color-cinema-red: #D92D20;
+  --color-cinema-red-hover: #B42318;
+  --color-cinema-gold: #C8923E;
+  --color-cinema-cyan: #00E5FF;
+  
+  --color-bg-dark: #101113;
+  --color-card-dark: #191A1D;
+  --color-card-elevated-dark: #222428;
+  --color-bg-light: #F8FAFC;
+  --color-card-light: #FFFFFF;
+}
+
+:root {
+  --bg-main: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface-hover: #F1F5F9;
+  --text-main: #0F172A;
+  --text-sub: #64748B;
+  --text-muted: #94A3B8;
+  --border-color: #E2E8F0;
+  --primary: #D92D20;
+  --primary-hover: #B42318;
+  --primary-glow: rgba(217, 45, 32, 0.25);
+  
+  /* Brand Logo & VIP Tokens (Light Mode) */
+  --logo-icon: #C92A21;
+  --logo-text: #18181B;
+  --logo-vip: #B8863B;
+  --gold: #B8863B;
+  --cyan: #0284C7;
+  
+  /* Seat tokens (Light Mode) */
+  --seat-std: #E2E8F0;
+  --seat-std-border: #94A3B8;
+  --seat-vip: #FEF3C7;
+  --seat-vip-border: #B8863B;
+  --seat-couple: #FFE4E6;
+  --seat-couple-border: #E11D48;
+  --seat-selected: #C92A21;
+  --seat-sold: #CBD5E1;
+  --seat-sold-border: #94A3B8;
+}
+
+.dark {
+  /* Rich Charcoal Cinema Palette */
+  --bg-main: #101113;
+  --surface: #191A1D;
+  --surface-elevated: #222428;
+  --surface-hover: #222428;
+  --text-main: #F2F4F7;
+  --text-sub: #98A2B3;
+  --text-muted: #667085;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --primary: #D92D20;
+  --primary-hover: #B42318;
+  --primary-glow: rgba(217, 45, 32, 0.35);
+  
+  /* Brand Logo & VIP Tokens (Dark Mode) */
+  --logo-icon: #D92D20;
+  --logo-text: #F2F4F7;
+  --logo-vip: #C8923E;
+  --gold: #C8923E;
+  --cyan: #00E5FF;
+  
+  /* Seat tokens (Rich Charcoal Dark Mode) */
+  --seat-std: #222428;
+  --seat-std-border: #343840;
+  --seat-vip: #3D2C15;
+  --seat-vip-border: #C8923E;
+  --seat-couple: #4A151A;
+  --seat-couple-border: #E05252;
+  --seat-selected: #D92D20;
+  --seat-sold: #141518;
+  --seat-sold-border: #1E2024;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling on iOS landscape */
+  text-size-adjust: 100%;
+}
+
+/* Prevent horizontal overflow globally */
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Custom Utilities for Cinema Aesthetics */
+.glass-panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.card-elevated {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+}
+
+.neon-glow-red {
+  box-shadow: 0 0 25px -4px var(--primary-glow);
+}
+
+.neon-glow-cyan {
+  box-shadow: 0 0 25px -4px rgba(0, 229, 255, 0.4);
+}
+
+.neon-glow-gold {
+  box-shadow: 0 0 25px -4px rgba(200, 146, 62, 0.35);
+}
+
+/* Curved Cinema Screen Glow */
+.cinema-screen-curve {
+  position: relative;
+  height: 12px;
+  width: 70%;
+  margin: 0 auto;
+  border-top: 4px solid var(--cyan);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  filter: drop-shadow(0 6px 12px rgba(0, 229, 255, 0.5));
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-sub);
+}
+
+/* Hide scrollbars on mobile */
+@media (max-width: 640px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  * {
+    scrollbar-width: none;
+  }
+}
+
+/* Touch-friendly tap targets */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area insets for notch/status bar on mobile */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+
+/* Smooth momentum scroll on iOS */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure images don't overflow */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevent input zoom on iOS (minimum 16px font for inputs) */
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
