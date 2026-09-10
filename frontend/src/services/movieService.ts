@@ -5,9 +5,22 @@ import type { MovieFormat, AgeRating } from '../components/common/Badge';
 import { MOCK_MOVIES, MOCK_CINEMAS, getMovieShowtimesGrouped } from '../data/mockData';
 import { INITIAL_MOCK_REVIEWS } from '../data/mockReviews';
 
+function normalizeGenreName(raw: string): string {
+  if (!raw) return 'Điện Ảnh';
+  const trimmed = raw.trim();
+  if (trimmed.includes('Khoa') || trimmed.includes('Viá') || trimmed.includes('TÆ')) return 'Khoa Học Viễn Tưởng';
+  if (trimmed.includes('Hành') || trimmed.includes('HÃ nh') || trimmed.includes('Ä')) return 'Hành Động';
+  if (trimmed.includes('Kinh') || trimmed.includes('Dá')) return 'Kinh Dị';
+  if (trimmed.includes('Hoạt') || trimmed.includes('Hoá') || trimmed.includes('HÃ¬nh')) return 'Hoạt Hình';
+  if (trimmed.includes('Tình') || trimmed.includes('TÃ¬nh') || trimmed.includes('Cáº')) return 'Tình Cảm';
+  if (trimmed.includes('Hài') || trimmed.includes('HÃ i') || trimmed.includes('HÆ')) return 'Hài Hước';
+  if (trimmed.includes('Phiêu') || trimmed.includes('PhiÃ') || trimmed.includes('LÆ')) return 'Phiêu Lưu';
+  return trimmed;
+}
+
 export const movieService = {
   /**
-   * Láº¥y danh sÃ¡ch táº¥t cáº£ cÃ¡c phim (káº¿t ná»‘i trá»±c tiáº¿p Backend /api/movies)
+   * Lấy danh sách tất cả các phim (kết nối trực tiếp Backend /api/movies)
    */
   async getMovies(params?: { status?: string; genre?: string; search?: string }): Promise<Movie[]> {
     try {
@@ -33,7 +46,7 @@ export const movieService = {
           director: m.director || 'Đạo diễn Quốc tế',
           cast: m.cast || ['Diễn viên Chính', 'Diễn viên Phụ'],
           genres: Array.isArray(m.genres) && m.genres.length > 0
-            ? m.genres.map((g: any) => (typeof g === 'string' ? g : g.name || 'Điện Ảnh'))
+            ? m.genres.map((g: any) => normalizeGenreName(typeof g === 'string' ? g : g.name || 'Điện Ảnh'))
             : ['Hành Động', 'Điện Ảnh'],
           rating: Number((7.8 + ((Number(m.id) * 7) % 20) / 10).toFixed(1)),
           voteCount: 1200 + (Number(m.id) * 97) % 3500,
