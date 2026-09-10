@@ -22,7 +22,7 @@ public class ShowtimeRepositoryAdapter implements ShowtimeRepository {
 
     @Override
     public List<Showtime> findAll() {
-        return springDataShowtimeRepository.findAll().stream()
+        return springDataShowtimeRepository.findAllByOrderByStartTimeAsc().stream()
                 .map(showtimeEntityMapper::toDomain)
                 .toList();
     }
@@ -34,15 +34,20 @@ public class ShowtimeRepositoryAdapter implements ShowtimeRepository {
 
     @Override
     public List<Showtime> findByFilters(Long movieId, List<Long> roomIds, LocalDateTime fromTime, LocalDateTime toTime, ShowtimeStatus status) {
-        List<Long> rooms = (roomIds != null && roomIds.isEmpty()) ? null : roomIds;
-        return springDataShowtimeRepository.findByFilters(movieId, rooms, fromTime, toTime, status).stream()
+        return springDataShowtimeRepository.findAllByOrderByStartTimeAsc().stream()
+                .filter(s -> movieId == null || s.getMovieId().equals(movieId))
+                .filter(s -> roomIds == null || roomIds.isEmpty() || roomIds.contains(s.getRoomId()))
+                .filter(s -> fromTime == null || !s.getStartTime().isBefore(fromTime))
+                .filter(s -> toTime == null || !s.getStartTime().isAfter(toTime))
+                .filter(s -> status == null || s.getStatus() == status)
                 .map(showtimeEntityMapper::toDomain)
                 .toList();
     }
 
     @Override
     public boolean existsOverlapping(Long roomId, LocalDateTime startTime, LocalDateTime endTime, Long excludeShowtimeId) {
-        return springDataShowtimeRepository.existsOverlapping(roomId, startTime, endTime, excludeShowtimeId);
+        Long exclude = excludeShowtimeId != null ? excludeShowtimeId : 0L;
+        return springDataShowtimeRepository.existsOverlapping(roomId, startTime, endTime, exclude);
     }
 
     @Override
