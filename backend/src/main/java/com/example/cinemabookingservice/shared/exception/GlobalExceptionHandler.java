@@ -1,5 +1,10 @@
 package com.example.cinemabookingservice.shared.exception;
 
+import com.example.cinemabookingservice.booking.domain.exception.BookingExpiredException;
+import com.example.cinemabookingservice.booking.domain.exception.BookingNotFoundException;
+import com.example.cinemabookingservice.booking.domain.exception.SeatAlreadyBookedException;
+import com.example.cinemabookingservice.booking.domain.exception.TicketAlreadyUsedException;
+import com.example.cinemabookingservice.booking.domain.exception.TicketNotFoundException;
 import com.example.cinemabookingservice.cinema.domain.exception.CinemaNotFoundException;
 import com.example.cinemabookingservice.cinema.domain.exception.RoomNotFoundException;
 import com.example.cinemabookingservice.cinema.domain.exception.SeatNotFoundException;
@@ -33,7 +38,9 @@ public class GlobalExceptionHandler {
             CinemaNotFoundException.class,
             RoomNotFoundException.class,
             SeatNotFoundException.class,
-            ShowtimeNotFoundException.class
+            ShowtimeNotFoundException.class,
+            BookingNotFoundException.class,
+            TicketNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(
             RuntimeException exception,
@@ -49,7 +56,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    @ExceptionHandler({UserAlreadyExistsException.class, ShowtimeOverlapException.class})
+    @ExceptionHandler({
+            UserAlreadyExistsException.class,
+            ShowtimeOverlapException.class,
+            SeatAlreadyBookedException.class
+    })
     public ResponseEntity<ErrorResponse> handleConflict(
             RuntimeException exception,
             HttpServletRequest request
@@ -62,6 +73,26 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler({
+            BookingExpiredException.class,
+            TicketAlreadyUsedException.class,
+            IllegalArgumentException.class,
+            IllegalStateException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadRequest(
+            RuntimeException exception,
+            HttpServletRequest request
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                exception.getMessage(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler({BadCredentialsException.class, TokenRevokedException.class})

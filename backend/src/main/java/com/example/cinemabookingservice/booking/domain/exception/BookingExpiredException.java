@@ -1,0 +1,7 @@
+package com.example.cinemabookingservice.booking.domain.exception;
+
+public class BookingExpiredException extends RuntimeException {
+    public BookingExpiredException(String message) {
+        super(message);
+    }
+}

@@ -1,5 +1,10 @@
 package com.example.cinemabookingservice.showtime.application.service;
 
+import com.example.cinemabookingservice.booking.domain.Booking;
+import com.example.cinemabookingservice.booking.domain.BookingSeat;
+import com.example.cinemabookingservice.booking.domain.BookingStatus;
+import com.example.cinemabookingservice.booking.domain.repository.BookingRepository;
+import com.example.cinemabookingservice.booking.domain.repository.BookingSeatRepository;
 import com.example.cinemabookingservice.cinema.domain.Cinema;
 import com.example.cinemabookingservice.cinema.domain.Room;
 import com.example.cinemabookingservice.cinema.domain.Seat;
@@ -39,6 +44,8 @@ public class ShowtimeService {
     private final RoomRepository roomRepository;
     private final CinemaRepository cinemaRepository;
     private final SeatRepository seatRepository;
+    private final BookingSeatRepository bookingSeatRepository;
+    private final BookingRepository bookingRepository;
 
     @Transactional(readOnly = true)
     public List<ShowtimeResponse> getShowtimesByFilters(Long movieId, Long cinemaId, LocalDate date, ShowtimeStatus status) {
@@ -77,29 +84,54 @@ public class ShowtimeService {
 
         ShowtimeResponse showtimeResponse = buildShowtimeResponse(showtime);
 
-        // Lấy bảng giá ghế của suất chiếu (hoặc sinh mặc định nếu chưa lưu)
+        // Bảng giá theo loại ghế
         Map<SeatType, BigDecimal> priceMap = getSeatPriceMap(showtime);
 
-        // Lấy toàn bộ ghế của phòng chiếu
+        // Danh sách ghế của phòng chiếu
         List<Seat> seats = seatRepository.findByRoomId(showtime.getRoomId());
 
-        List<ShowtimeSeatItemDto> seatItems = seats.stream().map(seat -> {
+        // Lấy danh sách các ghế đang bị khóa/đã bán của suất chiếu này
+        List<BookingSeat> bookedSeats = bookingSeatRepository.findByShowtimeId(showtime.getId());
+        Map<Long, String> seatStatusMap = new HashMap<>();
+
+        for (BookingSeat bs : bookedSeats) {
+            Optional<Booking> bOpt = bookingRepository.findById(bs.getBookingId());
+            if (bOpt.isPresent()) {
+                Booking b = bOpt.get();
+                if (b.getStatus() == BookingStatus.CONFIRMED) {
+                    seatStatusMap.put(bs.getSeatId(), "SOLD");
+                } else if (b.getStatus() == BookingStatus.PENDING && !b.isExpired()) {
+                    seatStatusMap.put(bs.getSeatId(), "HOLDING");
+                }
+            }
+        }
+
+        int availableCount = 0;
+        List<ShowtimeSeatItemDto> seatItems = new ArrayList<>();
+
+        for (Seat seat : seats) {
             BigDecimal price = priceMap.getOrDefault(seat.getSeatType(), showtime.getBasePrice());
-            return ShowtimeSeatItemDto.builder()
+            String seatStatus = seatStatusMap.getOrDefault(seat.getId(), "AVAILABLE");
+
+            if ("AVAILABLE".equals(seatStatus)) {
+                availableCount++;
+            }
+
+            seatItems.add(ShowtimeSeatItemDto.builder()
                     .seatId(seat.getId())
                     .rowLabel(seat.getRowLabel())
                     .seatNumber(seat.getSeatNumber())
                     .seatCode(seat.getSeatCode())
                     .seatType(seat.getSeatType())
                     .price(price)
-                    .status("AVAILABLE")
-                    .build();
-        }).toList();
+                    .status(seatStatus)
+                    .build());
+        }
 
         return ShowtimeSeatsMapResponse.builder()
                 .showtime(showtimeResponse)
                 .totalSeats(seatItems.size())
-                .availableSeats(seatItems.size())
+                .availableSeats(availableCount)
                 .seats(seatItems)
                 .build();
     }
@@ -107,7 +139,7 @@ public class ShowtimeService {
     @Transactional
     public ShowtimeResponse createShowtime(CreateShowtimeRequest request) {
         Movie movie = movieRepository.findById(request.getMovieId())
-                .orElseThrow(() -> new MovieNotFoundException("Không tìm thấy phim với ID: " + request.getMovieId()));
+                .orElseThrow(() -> new MovieNotFoundException(request.getMovieId()));
 
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new RoomNotFoundException("Không tìm thấy phòng chiếu với ID: " + request.getRoomId()));
@@ -206,10 +238,6 @@ public class ShowtimeService {
                         .build());
             }
         } else {
-            // Khởi tạo bảng giá chuẩn mặc định:
-            // NORMAL = basePrice
-            // VIP = basePrice + 20.000đ
-            // COUPLE = basePrice * 2
             BigDecimal base = showtime.getBasePrice();
             seatPricesToSave.add(ShowtimeSeatPrice.builder()
                     .showtimeId(showtime.getId())
