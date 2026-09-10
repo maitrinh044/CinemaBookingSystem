@@ -3,3 +3,5 @@ export * from './movieService';
 export * from './bookingService';
 export * from './authService';
 export * from './paymentService';
+export * from './showtimeService';
+export * from './notificationService';

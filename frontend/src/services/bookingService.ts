@@ -1,84 +1,118 @@
 import { apiClient, type ApiResponse } from './apiClient';
 import type { CompletedBooking } from '../types/booking';
-import { MOCK_PAST_BOOKINGS } from '../data/mockBookingData';
+
+export interface HoldSeatsRequest {
+  showtimeId: number;
+  seatIds: number[];
+}
+
+export interface BackendBookingResponse {
+  id: number;
+  bookingCode: string;
+  showtimeId: number;
+  userId: number;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED';
+  totalAmount: number;
+  expiresAt: string;
+  confirmedAt?: string;
+  seats: Array<{
+    seatId: number;
+    seatCode: string;
+    seatType: string;
+    price: number;
+  }>;
+  tickets?: Array<{
+    id: number;
+    ticketCode: string;
+    seatCode: string;
+    seatType: string;
+    movieTitle: string;
+    cinemaName: string;
+    roomName: string;
+    startTime: string;
+    qrCode: string;
+    status: 'UNUSED' | 'USED' | 'CANCELLED';
+  }>;
+}
+
+export interface BackendTicketResponse {
+  id: number;
+  ticketCode: string;
+  seatId: number;
+  seatCode: string;
+  seatType: string;
+  movieTitle: string;
+  cinemaName: string;
+  roomName: string;
+  startTime: string;
+  qrCode: string;
+  status: 'UNUSED' | 'USED' | 'CANCELLED';
+  checkedInAt?: string;
+}
 
 export const bookingService = {
   /**
-   * Giữ ghế tạm thời (Lock seats in real-time)
+   * Giữ ghế 5 phút qua API Backend (/api/bookings/hold)
    */
   async holdSeats(params: {
-    showtimeId: string;
-    seatIds: string[];
-  }): Promise<{ success: boolean; expiresAt: string }> {
-    try {
-      const res = await apiClient.post<ApiResponse<{ success: boolean; expiresAt: string }>>(
-        '/bookings/hold-seats',
-        params
-      );
-      return res.data;
-    } catch {
-      // Fallback 10-minute hold expiration
-      const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-      return { success: true, expiresAt: expires };
-    }
+    showtimeId: number;
+    seatIds: number[];
+  }): Promise<BackendBookingResponse> {
+    const res = await apiClient.post<ApiResponse<BackendBookingResponse>>('/bookings/hold', params);
+    return res.data;
   },
 
   /**
-   * Hủy giữ chỗ khi người dùng quay lại hoặc hết thời gian
+   * Hủy giữ chỗ chủ động
    */
-  async releaseSeats(params: {
-    showtimeId: string;
-    seatIds: string[];
-  }): Promise<void> {
+  async cancelHold(bookingId: number): Promise<void> {
     try {
-      await apiClient.post('/bookings/release-seats', params);
+      await apiClient.post(`/bookings/${bookingId}/cancel`);
     } catch {
-      // Graceful no-op in mock mode
+      // Ignore
     }
   },
 
   /**
-   * Tạo đơn đặt vé và hóa đơn hoàn chỉnh
+   * Lấy lịch sử đơn hàng của người dùng hiện tại
+   */
+  async getMyBookings(): Promise<BackendBookingResponse[]> {
+    try {
+      const res = await apiClient.get<ApiResponse<BackendBookingResponse[]>>('/bookings/my-bookings');
+      return res.data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  /**
+   * Lấy danh sách vé điện tử kèm mã QR
+   */
+  async getMyTickets(): Promise<BackendTicketResponse[]> {
+    try {
+      const res = await apiClient.get<ApiResponse<BackendTicketResponse[]>>('/tickets/my-tickets');
+      return res.data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  /**
+   * Nhân viên soát vé tại rạp bằng mã QR hoặc mã vé
+   */
+  async checkInTicket(ticketCodeOrQr: string): Promise<any> {
+    const res = await apiClient.post<ApiResponse<any>>('/tickets/check-in', { ticketCodeOrQr });
+    return res.data;
+  },
+
+  /**
+   * Lưu vé cục bộ (dành cho fallback khi offline)
    */
   async createBooking(booking: CompletedBooking): Promise<CompletedBooking> {
-    try {
-      const res = await apiClient.post<ApiResponse<CompletedBooking>>('/bookings', booking);
-      return res.data;
-    } catch {
-      // Fallback: save to localStorage for persistence
-      const currentStorage = localStorage.getItem('cineglow_user_tickets');
-      const tickets: CompletedBooking[] = currentStorage ? JSON.parse(currentStorage) : [];
-      tickets.unshift(booking);
-      localStorage.setItem('cineglow_user_tickets', JSON.stringify(tickets));
-      return booking;
-    }
-  },
-
-  /**
-   * Lấy lịch sử vé xem phim của người dùng
-   */
-  async getUserBookings(userId: string): Promise<CompletedBooking[]> {
-    try {
-      const res = await apiClient.get<ApiResponse<CompletedBooking[]>>(`/users/${userId}/bookings`);
-      return res.data;
-    } catch {
-      // Return local storage combined with mock past bookings
-      const localTicketsRaw = localStorage.getItem('cineglow_user_tickets');
-      const localTickets: CompletedBooking[] = localTicketsRaw ? JSON.parse(localTicketsRaw) : [];
-      return [...localTickets, ...MOCK_PAST_BOOKINGS];
-    }
-  },
-
-  /**
-   * Tra cứu vé xem phim theo mã đặt vé (Booking Code)
-   */
-  async getBookingByCode(bookingCode: string): Promise<CompletedBooking | null> {
-    try {
-      const res = await apiClient.get<ApiResponse<CompletedBooking>>(`/bookings/code/${bookingCode}`);
-      return res.data;
-    } catch {
-      const all = await this.getUserBookings('current');
-      return all.find((b) => b.bookingCode.toUpperCase() === bookingCode.toUpperCase()) || null;
-    }
+    const currentStorage = localStorage.getItem('cineglow_user_tickets');
+    const tickets: CompletedBooking[] = currentStorage ? JSON.parse(currentStorage) : [];
+    tickets.unshift(booking);
+    localStorage.setItem('cineglow_user_tickets', JSON.stringify(tickets));
+    return booking;
   },
 };

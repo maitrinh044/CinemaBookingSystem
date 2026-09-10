@@ -1,3 +1,4 @@
+import { authService } from '../services/authService';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { CompletedBooking } from '../types/booking';
 import { MOCK_MOVIES, MOCK_CINEMAS } from '../data/mockData';
@@ -23,9 +24,9 @@ interface AuthContextType {
   openAuthModal: (tab?: AuthTab) => void;
   closeAuthModal: () => void;
   setAuthTab: (tab: AuthTab) => void;
-  login: (email: string, password?: string) => boolean;
+  login: (email: string, password?: string) => Promise<boolean> | boolean;
   loginAsDemo: () => void;
-  register: (name: string, email: string, phone: string, password?: string) => boolean;
+  register: (name: string, email: string, phone: string, password?: string) => Promise<boolean> | boolean;
   logout: () => void;
   updateUserProfile: (updates: Partial<UserProfile>) => void;
   addBooking: (booking: CompletedBooking) => void;
@@ -49,7 +50,7 @@ const DEFAULT_BOOKINGS: CompletedBooking[] = [
       date: '2026-09-12',
       time: '19:30',
       format: 'IMAX',
-      hallName: 'Phòng Chiếu IMAX Laser 01',
+      hallName: 'PhÃ²ng Chiáº¿u IMAX Laser 01',
       price: 135000,
       availableSeats: 45,
       totalSeats: 120,
@@ -63,7 +64,7 @@ const DEFAULT_BOOKINGS: CompletedBooking[] = [
         item: {
           id: 'combo-duo-sweet',
           name: 'Combo CineGlow Duo VIP',
-          description: '1 Bắp lớn + 2 Nước ngọt mát lạnh',
+          description: '1 Báº¯p lá»›n + 2 NÆ°á»›c ngá»t mÃ¡t láº¡nh',
           price: 119000,
           image: 'https://images.unsplash.com/photo-1572177812156-58036aae439c?w=600&auto=format&fit=crop&q=80',
           category: 'combo',
@@ -72,7 +73,7 @@ const DEFAULT_BOOKINGS: CompletedBooking[] = [
       },
     ],
     customerInfo: {
-      fullName: 'Nguyễn Mai Trinh',
+      fullName: 'Nguyá»…n Mai Trinh',
       phone: '0988 668 886',
       email: 'maitrinh@cineglow.vn',
     },
@@ -84,7 +85,7 @@ const DEFAULT_BOOKINGS: CompletedBooking[] = [
   {
     bookingCode: 'CG-452189',
     movie: MOCK_MOVIES[2], // Exhuma
-    cinema: MOCK_CINEMAS[1], // Vincom Đồng Khởi
+    cinema: MOCK_CINEMAS[1], // Vincom Äá»“ng Khá»Ÿi
     date: '05/09/2026',
     showtime: {
       id: 'st-exhuma-01',
@@ -93,7 +94,7 @@ const DEFAULT_BOOKINGS: CompletedBooking[] = [
       date: '2026-09-05',
       time: '20:15',
       format: '2D',
-      hallName: 'Phòng Chiếu 03 (Dolby Atmos)',
+      hallName: 'PhÃ²ng Chiáº¿u 03 (Dolby Atmos)',
       price: 95000,
       availableSeats: 20,
       totalSeats: 90,
@@ -104,7 +105,7 @@ const DEFAULT_BOOKINGS: CompletedBooking[] = [
     ],
     concessions: [],
     customerInfo: {
-      fullName: 'Nguyễn Mai Trinh',
+      fullName: 'Nguyá»…n Mai Trinh',
       phone: '0988 668 886',
       email: 'maitrinh@cineglow.vn',
     },
@@ -147,7 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = (email: string, _password?: string) => {
-    const displayName = email.split('@')[0] || 'Khách Hàng';
+    const displayName = email.split('@')[0] || 'KhÃ¡ch HÃ ng';
     const newUser: UserProfile = {
       id: 'usr_' + Date.now(),
       name: displayName,
@@ -160,8 +161,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(newUser);
     closeAuthModal();
     toast.success(
-      'Đăng nhập thành công!',
-      `Chào mừng ${displayName} quay trở lại với CineGlow!`
+      'ÄÄƒng nháº­p thÃ nh cÃ´ng!',
+      `ChÃ o má»«ng ${displayName} quay trá»Ÿ láº¡i vá»›i CineGlow!`
     );
     return true;
   };
@@ -169,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginAsDemo = () => {
     const demoUser: UserProfile = {
       id: 'demo_user_01',
-      name: 'Nguyễn Mai Trinh',
+      name: 'Nguyá»…n Mai Trinh',
       email: 'maitrinh@cineglow.vn',
       phone: '0988 668 886',
       membership: 'Diamond',
@@ -179,8 +180,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(demoUser);
     closeAuthModal();
     toast.success(
-      'Đăng nhập Demo thành công!',
-      'Chào mừng bạn trải nghiệm với tài khoản VIP Diamond của Nguyễn Mai Trinh.'
+      'ÄÄƒng nháº­p Demo thÃ nh cÃ´ng!',
+      'ChÃ o má»«ng báº¡n tráº£i nghiá»‡m vá»›i tÃ i khoáº£n VIP Diamond cá»§a Nguyá»…n Mai Trinh.'
     );
   };
 
@@ -197,8 +198,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(newUser);
     closeAuthModal();
     toast.success(
-      'Đăng ký tài khoản thành công!',
-      `Chào mừng ${name}! Bạn nhận được +50 điểm CinePoint khởi đầu.`
+      'ÄÄƒng kÃ½ tÃ i khoáº£n thÃ nh cÃ´ng!',
+      `ChÃ o má»«ng ${name}! Báº¡n nháº­n Ä‘Æ°á»£c +50 Ä‘iá»ƒm CinePoint khá»Ÿi Ä‘áº§u.`
     );
     return true;
   };
@@ -222,7 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUserProfile = (updates: Partial<UserProfile>) => {
     setUser((prev) => (prev ? { ...prev, ...updates } : null));
-    toast.success('Đã lưu hồ sơ!', 'Thông tin tài khoản đã được cập nhật thành công.');
+    toast.success('ÄÃ£ lÆ°u há»“ sÆ¡!', 'ThÃ´ng tin tÃ i khoáº£n Ä‘Ã£ Ä‘Æ°á»£c cáº­p nháº­t thÃ nh cÃ´ng.');
   };
 
   const addBooking = (booking: CompletedBooking) => {
@@ -234,17 +235,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (earnedPoints > 0) {
         setTimeout(() => {
           toast.info(
-            'Tích lũy CinePoint!',
-            `+${earnedPoints} điểm CinePoint đã được cộng vào tài khoản của bạn.`
+            'TÃ­ch lÅ©y CinePoint!',
+            `+${earnedPoints} Ä‘iá»ƒm CinePoint Ä‘Ã£ Ä‘Æ°á»£c cá»™ng vÃ o tÃ i khoáº£n cá»§a báº¡n.`
           );
         }, 800);
       }
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
-    toast.info('Đã đăng xuất', 'Tài khoản của bạn đã được đăng xuất an toàn. Hẹn sớm gặp lại!');
+    toast.info('ÄÃ£ Ä‘Äƒng xuáº¥t', 'TÃ i khoáº£n cá»§a báº¡n Ä‘Ã£ Ä‘Æ°á»£c Ä‘Äƒng xuáº¥t an toÃ n. Háº¹n sá»›m gáº·p láº¡i!');
   };
 
   return (
