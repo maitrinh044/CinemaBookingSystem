@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   Tv,
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import type { Movie, CinemaBranch, ShowtimeSlot } from '../../types/movie';
 import { MOCK_MOVIES, MOCK_CINEMAS, MOCK_SHOWTIMES } from '../../data/mockData';
+import { movieService } from '../../services/movieService';
 import { HeroSlider } from '../../components/movie/HeroSlider';
 import { QuickBooking } from '../../components/movie/QuickBooking';
 import { MovieGrid } from '../../components/movie/MovieGrid';
@@ -33,6 +34,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   onSelectMovieForBooking,
   onProceedToBooking,
 }) => {
+  const [movies, setMovies] = useState<Movie[]>(MOCK_MOVIES);
   const [activeTrailer, setActiveTrailer] = useState<{ title: string; url: string } | null>(null);
   const [quickBookingSuccess, setQuickBookingSuccess] = useState<{
     movie: Movie;
@@ -40,6 +42,22 @@ export const HomePage: React.FC<HomePageProps> = ({
     date: string;
     showtime: ShowtimeSlot;
   } | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    movieService.getMovies()
+      .then((data) => {
+        if (isMounted && data && data.length > 0) {
+          setMovies(data);
+        }
+      })
+      .catch((err) => {
+        console.warn('Backend movies load failed, fallback to mock data', err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleBookMovie = (movie: Movie) => {
     if (onSelectMovieForBooking) {
@@ -69,14 +87,14 @@ export const HomePage: React.FC<HomePageProps> = ({
     <div className="space-y-4">
       {/* 1. Hero Banner Slider */}
       <HeroSlider
-        movies={MOCK_MOVIES}
+        movies={movies}
         onBookMovie={handleBookMovie}
         onWatchTrailer={handleWatchTrailer}
       />
 
       {/* 2. Quick Booking Bar (Đặt vé nhanh 4 bước) */}
       <QuickBooking
-        movies={MOCK_MOVIES}
+        movies={movies}
         cinemas={MOCK_CINEMAS}
         showtimes={MOCK_SHOWTIMES}
         onConfirmBooking={handleQuickBooking}
@@ -84,7 +102,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* 3. Movie Grid with Status Tabs & Genre Filters */}
       <MovieGrid
-        movies={MOCK_MOVIES}
+        movies={movies}
         onSelectMovie={handleBookMovie}
         onWatchTrailer={handleWatchTrailer}
       />

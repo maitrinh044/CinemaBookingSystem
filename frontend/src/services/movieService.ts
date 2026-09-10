@@ -11,7 +11,7 @@ export const movieService = {
    */
   async getMovies(params?: { status?: string; genre?: string; search?: string }): Promise<Movie[]> {
     try {
-      const query = new URLSearchParams();
+      const query = new URLSearchParams({ size: '100' });
       if (params?.status) query.append('status', params.status === 'now_showing' ? 'NOW_SHOWING' : params.status.toUpperCase());
       if (params?.search) query.append('keyword', params.search);
 
@@ -30,13 +30,15 @@ export const movieService = {
           duration: m.durationMinutes || 120,
           releaseDate: m.releaseDate || '2026-09-01',
           ageRating: (['P', 'K', 'T13', 'T16', 'T18'].includes(m.ageRating) ? m.ageRating : 'T16') as AgeRating,
-          director: m.director || 'Denis Villeneuve',
-          cast: ['TimothÃ©e Chalamet', 'Zendaya', 'Rebecca Ferguson'],
-          genres: Array.isArray(m.genres) ? m.genres.map((g: any) => g.name || g) : ['HÃ nh Äá»™ng', 'Khoa Há»c Viá»…n TÆ°á»Ÿng'],
-          rating: 8.8,
-          voteCount: 2450,
+          director: m.director || 'Đạo diễn Quốc tế',
+          cast: m.cast || ['Diễn viên Chính', 'Diễn viên Phụ'],
+          genres: Array.isArray(m.genres) && m.genres.length > 0
+            ? m.genres.map((g: any) => (typeof g === 'string' ? g : g.name || 'Điện Ảnh'))
+            : ['Hành Động', 'Điện Ảnh'],
+          rating: Number((7.8 + ((Number(m.id) * 7) % 20) / 10).toFixed(1)),
+          voteCount: 1200 + (Number(m.id) * 97) % 3500,
           status: (m.status === 'NOW_SHOWING' ? 'now_showing' : 'coming_soon') as Movie['status'],
-          formats: ['2D', '3D', 'IMAX'] as MovieFormat[],
+          formats: (Number(m.id) % 3 === 0 ? ['2D', '3D', 'IMAX'] : Number(m.id) % 2 === 0 ? ['2D', '3D'] : ['2D']) as MovieFormat[],
         }));
       }
       return MOCK_MOVIES;

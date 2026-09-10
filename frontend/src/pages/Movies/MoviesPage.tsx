@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Film, 
   Search, 
@@ -6,10 +6,12 @@ import {
   Sparkles, 
   Star, 
   ChevronRight,
-  Ticket
+  Ticket,
+  Loader2
 } from 'lucide-react';
 import type { Movie } from '../../types/movie';
 import { MOCK_MOVIES } from '../../data/mockData';
+import { movieService } from '../../services/movieService';
 import { PosterImage } from '../../components/common/PosterImage';
 
 export interface MoviesPageProps {
@@ -17,22 +19,45 @@ export interface MoviesPageProps {
 }
 
 export const MoviesPage: React.FC<MoviesPageProps> = ({ onSelectMovie }) => {
+  const [movies, setMovies] = useState<Movie[]>(MOCK_MOVIES);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [statusTab, setStatusTab] = useState<'all' | 'now_showing' | 'coming_soon' | 'special_sneak'>('all');
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
   const [selectedFormat, setSelectedFormat] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'rating' | 'release' | 'duration'>('rating');
 
+  // Load live movies from Backend API
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoading(true);
+    movieService.getMovies()
+      .then((data) => {
+        if (isMounted && data && data.length > 0) {
+          setMovies(data);
+        }
+      })
+      .catch((err) => {
+        console.warn('Backend movies fetch error, using cached mock data', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Extract all unique genres
   const allGenres = useMemo(() => {
     const set = new Set<string>();
-    MOCK_MOVIES.forEach((m) => m.genres.forEach((g) => set.add(g)));
+    movies.forEach((m) => m.genres.forEach((g) => set.add(g)));
     return Array.from(set);
-  }, []);
+  }, [movies]);
 
   // Filter & Sort
   const filteredMovies = useMemo(() => {
-    let list = [...MOCK_MOVIES];
+    let list = [...movies];
 
     // Status filter
     if (statusTab !== 'all') {
@@ -71,16 +96,16 @@ export const MoviesPage: React.FC<MoviesPageProps> = ({ onSelectMovie }) => {
     }
 
     return list;
-  }, [statusTab, selectedGenre, selectedFormat, searchQuery, sortBy]);
+  }, [movies, statusTab, selectedGenre, selectedFormat, searchQuery, sortBy]);
 
   const statusCounts = useMemo(() => {
     return {
-      all: MOCK_MOVIES.length,
-      now_showing: MOCK_MOVIES.filter((m) => m.status === 'now_showing').length,
-      coming_soon: MOCK_MOVIES.filter((m) => m.status === 'coming_soon').length,
-      special_sneak: MOCK_MOVIES.filter((m) => m.status === 'special_sneak').length,
+      all: movies.length,
+      now_showing: movies.filter((m) => m.status === 'now_showing').length,
+      coming_soon: movies.filter((m) => m.status === 'coming_soon').length,
+      special_sneak: movies.filter((m) => m.status === 'special_sneak').length,
     };
-  }, []);
+  }, [movies]);
 
   return (
     <div className="space-y-8 pb-20 max-w-7xl mx-auto text-left">
@@ -90,7 +115,8 @@ export const MoviesPage: React.FC<MoviesPageProps> = ({ onSelectMovie }) => {
         <div className="relative z-10 max-w-2xl space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-bold border border-[var(--primary)]/20">
             <Film className="w-3.5 h-3.5" />
-            <span>Kho Phim Điện Ảnh Toàn Diện</span>
+            <span>Kho Phim Điện Ảnh Toàn Diện ({movies.length} Phim)</span>
+            {isLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--primary)] ml-1" />}
           </div>
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-[var(--text-main)]">
             Danh Sách Phim Chiếu Rạp CineGlow
